@@ -47,7 +47,7 @@ def create_smart_pptx(slide_text):
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="Teacher 🇦🇪 Teacher to AI Bot",
+    page_title="Teacher Bot",
     page_icon="🇦🇪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -101,7 +101,7 @@ def call_groq(prompt_text):
 
 # 3. Sidebar UI (Lesson Parameters)
 with st.sidebar:
-    st.markdown("### 🇦🇪 Teacher to AI Bot")
+    st.markdown("### 🇦🇪 Teacher Bot")
     st.caption("UAE-Aligned Smart Lesson Builder")
     st.divider()
     
