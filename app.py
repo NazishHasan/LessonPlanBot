@@ -3,7 +3,7 @@ from groq import Groq
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="EduSpark AI Studio - ADPA Lesson Plan Generator",
+    page_title="Teacher Bot - Lesson Plan Generator (UAE Aligned)",
     page_icon="🇦🇪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -44,7 +44,7 @@ def call_groq(prompt_text):
 # 3. Sidebar UI (Lesson Parameters)
 with st.sidebar:
     st.markdown("### 🇦🇪 EduSpark AI Studio")
-    st.caption("ADPA UAE-Aligned Smart Lesson Builder")
+    st.caption("UAE-Aligned Smart Lesson Builder")
     st.divider()
     
     st.markdown("#### **Lesson Parameters**")
@@ -54,11 +54,11 @@ with st.sidebar:
     objectives = st.text_area("Learning Objectives (LOs)", placeholder="What should students know or be able to do?")
     
     with st.expander("Advanced Settings"):
-        time_duration = st.slider("Lesson Duration (Minutes)", 30, 120, 60, step=5)
+        time_duration = st.slider("Lesson Duration (Minutes)", 30, 120, 55, step=5)
         differentiation = st.multiselect("Differentiation Focus", ["SEN Support", "G&T (Gifted & Talented)", "ELL / Language Support"], default=["SEN Support"])
 
     st.write("")
-    generate_btn = st.button("⚡ Generate Full ADPA Lesson Plan", type="primary", use_container_width=True)
+    generate_btn = st.button("⚡ Generate Full Lesson Plan", type="primary", use_container_width=True)
 
 # 4. Layout: 3 Columns
 # Left: Full Workspace | Center: Specific Component Tools | Right: Copilot
@@ -74,7 +74,7 @@ with col_workspace:
         else:
             with st.spinner("Generating full framework via Groq..."):
                 base_prompt = f"""
-                You are an expert curriculum designer specializing in the UAE ADPA (Abu Dhabi Performance Assessment) Framework.
+                You are an expert curriculum designer specializing in the UAE (Abu Dhabi Performance Assessment) Framework.
                 Generate a comprehensive, structured lesson plan based on these parameters:
                 - Grade: {grade}
                 - Subject: {subject}
@@ -93,13 +93,13 @@ with col_workspace:
         st.download_button(
             label="📥 Download Full Plan (.txt)",
             data=st.session_state.lesson_plan,
-            file_name=f"ADPA_{topic.replace(' ', '_')}_Lesson_Plan.txt",
+            file_name=f"LP_{topic.replace(' ', '_')}_Lesson_Plan.txt",
             mime="text/plain"
         )
     else:
-        st.info("👋 Fill out the sidebar and click 'Generate Full ADPA Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
+        st.info("👋 Fill out the sidebar and click 'Generate Full Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
 
-# --- COLUMN 2: SPECIFIC ADPA FRAMEWORK COMPONENTS ---
+# --- COLUMN 2: SPECIFIC COMPONENTS ---
 with col_components:
     st.subheader("🛠️ Framework Blocks")
     st.caption("Click a button to generate a specific sub-framework element")
