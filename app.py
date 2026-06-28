@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # 2. Secure API Key Management (Groq)
-if "GROQ_API_KEY" in st.secrets:
+if "Teacher_API" in st.secrets:
     client = Groq(api_key=st.secrets["Teacher_API"])
 else:
     # Fallback for local testing
