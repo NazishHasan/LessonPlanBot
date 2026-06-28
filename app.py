@@ -62,7 +62,7 @@ with st.sidebar:
 
 # 4. Layout: 3 Columns
 # Left: Full Workspace | Center: Specific Component Tools | Right: Copilot
-col_workspace, col_components, col_copilot = st.columns([1.1, 1.8, 0.9])
+col_workspace, col_components, col_copilot = st.columns([1.7, 1.4, 0.9])
 
 # --- COLUMN 1: FULL WORKSPACE OUTPUT ---
 with col_workspace:
