@@ -3,7 +3,7 @@ from groq import Groq
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="Teacher Bot - Lesson Plan Generator (UAE Aligned)",
+    page_title="Teacher Bot - UAE Aligned Lesson Plan Generator",
     page_icon="🇦🇪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -43,7 +43,7 @@ def call_groq(prompt_text):
 
 # 3. Sidebar UI (Lesson Parameters)
 with st.sidebar:
-    st.markdown("### 🇦🇪 Teacher AI Bot")
+    st.markdown("### 🇦🇪 Teacher to AI Bot")
     st.caption("UAE-Aligned Smart Lesson Builder")
     st.divider()
     
@@ -54,15 +54,14 @@ with st.sidebar:
     objectives = st.text_area("Learning Objectives (LOs)", placeholder="What should students know or be able to do?")
     
     with st.expander("Advanced Settings"):
-        time_duration = st.slider("Lesson Duration (Minutes)", 30, 120, 55, step=5)
+        time_duration = st.slider("Lesson Duration (Minutes)", 30, 120, 60, step=5)
         differentiation = st.multiselect("Differentiation Focus", ["SEN Support", "G&T (Gifted & Talented)", "ELL / Language Support"], default=["SEN Support"])
 
     st.write("")
     generate_btn = st.button("⚡ Generate Full Lesson Plan", type="primary", use_container_width=True)
 
-# 4. Layout: 3 Columns
-# Left: Full Workspace | Center: Specific Component Tools | Right: Copilot
-col_workspace, col_components, col_copilot = st.columns([1.7, 1.4, 0.9])
+# 4. Layout: Merged into 2 clean columns
+col_workspace, col_tools = st.columns([1.1, 1.3])
 
 # --- COLUMN 1: FULL WORKSPACE OUTPUT ---
 with col_workspace:
@@ -99,12 +98,13 @@ with col_workspace:
     else:
         st.info("👋 Fill out the sidebar and click 'Generate Full Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
 
-# --- COLUMN 2: SPECIFIC COMPONENTS ---
-with col_components:
+
+# --- COLUMN 2: MERGED FRAMEWORK BLOCKS & COPILOT TOOLS ---
+with col_tools:
     st.subheader("🛠️ Framework Blocks")
-    st.caption("Click a button to generate a specific sub-framework element")
+    st.caption("Click a button to generate a specific sub-framework element below")
     
-    # Pack the buttons tightly into a 3-column compact grid layout
+    # 3-Column Button Grid for the 13 options to keep it highly organized
     comp_col1, comp_col2, comp_col3 = st.columns(3)
     
     selected_component = None
@@ -165,13 +165,12 @@ with col_components:
             selected_component = "🎯 Post-Assessment (3 MCQs)"
             component_instruction = "Compose a 3-question multiple choice summative evaluation tool along with an answer key for direct post-lesson feedback."
 
-    # If any component button was selected, make the API call right away
+    # Process block triggers
     if selected_component and component_instruction:
         if not topic or not objectives:
             st.error("⚠️ Make sure you have entered a Topic and Objectives in the sidebar first!")
         else:
             with st.spinner(f"Generating {selected_component}..."):
-                # Clean up prompt formatting to ensure plain text layout
                 prompt = f"""
                 You are a premium curriculum architect aligning content with UAE standards.
                 Task: Generate the '{selected_component}' element.
@@ -187,39 +186,35 @@ with col_components:
                 st.session_state.component_output = call_groq(prompt)
                 st.session_state.active_component_name = selected_component
 
-    # --- THE CLEAN COPY WORKSPACE ---
+    # --- WIDE OUTPUT CONTAINER BLOCK ---
     st.divider()
     st.markdown(f"##### 🔲 {st.session_state.active_component_name}")
     
     if st.session_state.component_output:
-        # st.code provides an instant 1-click copy button on hover and keeps layout clean!
         st.code(st.session_state.component_output, language="markdown")
     else:
         st.caption("Click any framework block above to view text snippets here.")
 
-
-#-----------------------
-    
-  
-# --- COLUMN 3: AI COPILOT REFINEMENT PANEL ---
-with col_copilot:
-    st.subheader("🤖 AI Copilot")
-    st.caption("Apply sweeping fixes to the main active layout")
-    
-    st.write("✨ **Quick Refinements:**")
-    add_quiz = st.button("📝 Add Extra Quiz Items", use_container_width=True)
-    more_sen = st.button("🤝 Deepen Support Strategies", use_container_width=True)
-    time_breakdown = st.button("⏱️ Create Detailed Pacing", use_container_width=True)
-    
+    # --- INTEGRATED AI COPILOT REFINEMENT PANEL ---
     st.divider()
+    st.subheader("🤖 AI Copilot")
+    st.caption("Apply quick refinements or custom instructions to your left Main Workspace Plan")
+    
+    cop_col1, cop_col2, cop_col3 = st.columns(3)
+    with cop_col1:
+        add_quiz = st.button("📝 Add Extra Quiz Items", use_container_width=True)
+    with cop_col2:
+        more_sen = st.button("🤝 Deepen Support Strategies", use_container_width=True)
+    with cop_col3:
+        time_breakdown = st.button("⏱️ Create Detailed Pacing", use_container_width=True)
     
     chip_instruction = ""
     if add_quiz: chip_instruction = "Expand the assessment metrics by attaching additional custom quiz tracking options."
     if more_sen: chip_instruction = "Deepen inclusion scaffolding adjustments across all target lesson blocks."
     if time_breakdown: chip_instruction = "Provide an exact, comprehensive minute-by-minute pace structure tracking how to guide this entire agenda."
 
-    user_instruction = st.text_input("💬 Custom adjustments...", placeholder="e.g., Translate vocabulary to Arabic...")
-    submit_instruction = st.button("Apply to Plan", use_container_width=True)
+    user_instruction = st.text_input("💬 Custom adjustments to Main Plan...", placeholder="e.g., Translate vocabulary to Arabic...")
+    submit_instruction = st.button("Apply to Main Plan", use_container_width=True)
     
     final_instruction = user_instruction if submit_instruction else chip_instruction
     
