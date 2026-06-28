@@ -1,5 +1,8 @@
 import streamlit as st
 from groq import Groq
+import io
+from docx import Document
+from pptx import Presentation
 
 # 1. Page Configuration
 st.set_page_config(
@@ -40,6 +43,31 @@ def call_groq(prompt_text):
         return chat_completion.choices[0].message.content
     except Exception as e:
         return f"Error communicating with Groq API: {str(e)}"
+
+# Helper: Create Word Doc
+def create_docx(content):
+    doc = Document()
+    doc.add_heading('Lesson Plan', 0)
+    doc.add_paragraph(content)
+    bio = io.BytesIO()
+    doc.save(bio)
+    return bio.getvalue()
+
+# Helper: Create PPT
+def create_pptx(content):
+    prs = Presentation()
+    # Basic logic: splitting content by headers to create slides
+    sections = content.split('\n## ')
+    for section in sections:
+        slide = prs.slides.add_slide(prs.slide_layouts[1])
+        title_text = section.split('\n')[0].replace('#', '').strip()
+        slide.shapes.title.text = title_text or "Lesson Overview"
+        slide.placeholders[1].text = section.split('\n', 1)[1] if '\n' in section else ""
+    
+    bio = io.BytesIO()
+    prs.save(bio)
+    return bio.getvalue()
+    
 
 # 3. Sidebar UI (Lesson Parameters)
 with st.sidebar:
@@ -86,15 +114,19 @@ with col_workspace:
                 """
                 st.session_state.lesson_plan = call_groq(base_prompt)
     
+
     if st.session_state.lesson_plan:
-        st.markdown(st.session_state.lesson_plan)
-        st.divider()
-        st.download_button(
-            label="📥 Download Full Plan (.txt)",
-            data=st.session_state.lesson_plan,
-            file_name=f"LP_{topic.replace(' ', '_')}_Lesson_Plan.txt",
-            mime="text/plain"
-        )
+    st.markdown(st.session_state.lesson_plan)
+    st.divider()
+    
+    # Download Buttons Row
+    btn_col1, btn_col2, btn_col3 = st.columns(3)
+    with btn_col1:
+        st.download_button("📥 Word (.docx)", data=create_docx(st.session_state.lesson_plan), file_name="Lesson.docx")
+    with btn_col2:
+        st.download_button("📥 PPT (.pptx)", data=create_pptx(st.session_state.lesson_plan), file_name="Lesson.pptx")
+    with btn_col3:
+        st.download_button("📥 Text (.txt)", data=st.session_state.lesson_plan, file_name="Lesson.txt")
     else:
         st.info("👋 Fill out the sidebar and click 'Generate Full Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
 
