@@ -43,7 +43,7 @@ def call_groq(prompt_text):
 
 # 3. Sidebar UI (Lesson Parameters)
 with st.sidebar:
-    st.markdown("### 🇦🇪 EduSpark AI Studio")
+    st.markdown("### 🇦🇪 Teacher AI Bot")
     st.caption("UAE-Aligned Smart Lesson Builder")
     st.divider()
     
