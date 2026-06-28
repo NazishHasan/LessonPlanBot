@@ -115,21 +115,21 @@ with col_workspace:
                 st.session_state.lesson_plan = call_groq(base_prompt)
     
 
-    if st.session_state.lesson_plan:
-    st.markdown(st.session_state.lesson_plan)
-    st.divider()
-    
-    # Download Buttons Row
-    btn_col1, btn_col2, btn_col3 = st.columns(3)
-    with btn_col1:
-        st.download_button("📥 Word (.docx)", data=create_docx(st.session_state.lesson_plan), file_name="Lesson.docx")
-    with btn_col2:
-        st.download_button("📥 PPT (.pptx)", data=create_pptx(st.session_state.lesson_plan), file_name="Lesson.pptx")
-    with btn_col3:
-        st.download_button("📥 Text (.txt)", data=st.session_state.lesson_plan, file_name="Lesson.txt")
-    else:
-        st.info("👋 Fill out the sidebar and click 'Generate Full Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
 
+    if st.session_state.lesson_plan:
+        st.markdown(st.session_state.lesson_plan)
+        st.divider()
+        
+        # Download Buttons Row
+        btn_col1, btn_col2, btn_col3 = st.columns(3)
+        with btn_col1:
+            st.download_button("📥 Word (.docx)", data=create_docx(st.session_state.lesson_plan), file_name=f"ADPA_{topic.replace(' ', '_')}.docx", use_container_width=True)
+        with btn_col2:
+            st.download_button("📥 PPT (.pptx)", data=create_pptx(st.session_state.lesson_plan), file_name=f"Lesson_{topic.replace(' ', '_')}.pptx", use_container_width=True)
+        with btn_col3:
+            st.download_button("📥 Text (.txt)", data=st.session_state.lesson_plan, file_name=f"ADPA_{topic.replace(' ', '_')}.txt", use_container_width=True)
+    else:
+        st.info("👋 Fill out the sidebar and click 'Generate Full ADPA Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
 
 # --- COLUMN 2: MERGED FRAMEWORK BLOCKS & COPILOT TOOLS ---
 with col_tools:
