@@ -8,7 +8,7 @@ from pptx.util import Inches, Pt
 # Helper Function: Create Word Document
 def create_docx(content):
     doc = Document()
-    doc.add_heading('ADPA Lesson Plan', 0)
+    doc.add_heading('Lesson Plan', 0)
     for paragraph in content.split('\n\n'):
         if paragraph.strip():
             doc.add_paragraph(paragraph.strip())
@@ -104,7 +104,7 @@ with st.sidebar:
         differentiation = st.multiselect("Differentiation Focus", ["SEN Support", "G&T (Gifted & Talented)", "ELL / Language Support"], default=["SEN Support"])
 
     st.write("")
-    generate_btn = st.button("⚡ Generate Full ADPA Lesson Plan", type="primary", use_container_width=True)
+    generate_btn = st.button("⚡ Generate Full Lesson Plan", type="primary", use_container_width=True)
     
     # NEW SLIDE GENERATOR BUTTON RIGHT IN THE SIDEBAR!
     generate_slides_btn = st.button("🖼️ Generate Student PPT Slides", type="secondary", use_container_width=True)
@@ -121,7 +121,7 @@ with col_workspace:
         else:
             with st.spinner("Generating full framework via Groq..."):
                 base_prompt = f"""
-                You are an expert curriculum designer specializing in the UAE ADPA Framework.
+                You are an expert curriculum designer specializing in the UAE Framework.
                 Generate a comprehensive, structured teacher lesson plan based on these parameters:
                 - Grade: {grade}, Subject: {subject}, Topic: {topic}, Objectives: {objectives}, Duration: {time_duration} mins.
                 Organize clearly into standard sections.
@@ -164,9 +164,9 @@ with col_workspace:
         
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
-            st.download_button("📥 Download Word (.docx)", data=create_docx(st.session_state.lesson_plan), file_name=f"ADPA_Plan_{topic.replace(' ', '_')}.docx", use_container_width=True)
+            st.download_button("📥 Download Word (.docx)", data=create_docx(st.session_state.lesson_plan), file_name=f"Lesson_Plan_{topic.replace(' ', '_')}.docx", use_container_width=True)
         with btn_col2:
-            st.download_button("📥 Download Text (.txt)", data=st.session_state.lesson_plan, file_name=f"ADPA_Plan_{topic.replace(' ', '_')}.txt", use_container_width=True)
+            st.download_button("📥 Download Text (.txt)", data=st.session_state.lesson_plan, file_name=f"Lesson_Plan_{topic.replace(' ', '_')}.txt", use_container_width=True)
 
     elif st.session_state.student_slides_text:
         st.subheader("🖼️ Main Workspace: Classroom Presentation Preview")
@@ -183,7 +183,7 @@ with col_workspace:
         )
     else:
         st.subheader("📝 Main Workspace")
-        st.info("👋 Fill out the sidebar and click 'Generate Full ADPA Lesson Plan' to view your teacher guide, or click 'Generate Student PPT Slides' to build classroom presentation slides!")
+        st.info("👋 Fill out the sidebar and click 'Generate Full Lesson Plan' to view your teacher guide, or click 'Generate Student PPT Slides' to build classroom presentation slides!")
 
 
 # --- COLUMN 2: MERGED FRAMEWORK BLOCKS & COPILOT TOOLS ---
