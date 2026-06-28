@@ -3,7 +3,7 @@ from groq import Groq
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="TeacherBot - UAE Schools' Lesson Plan Generator",
+    page_title="EduSpark AI Studio - ADPA Lesson Plan Generator",
     page_icon="🇦🇪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -11,9 +11,8 @@ st.set_page_config(
 
 # 2. Secure API Key Management (Groq)
 if "Teacher_API" in st.secrets:
-    client = Groq(api_key=st.secrets["Teacher_API"])
+    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 else:
-    # Fallback for local testing
     st.sidebar.warning("Groq API Key not found in Secrets. Please provide it below:")
     user_key = st.sidebar.text_input("Enter Groq API Key", type="password")
     if user_key:
@@ -21,23 +20,21 @@ else:
     else:
         client = None
 
-# Initialize Session State variables to store the generated outputs
+# Initialize Session State variables
 if "lesson_plan" not in st.session_state:
     st.session_state.lesson_plan = ""
+if "component_output" not in st.session_state:
+    st.session_state.component_output = ""
+if "active_component_name" not in st.session_state:
+    st.session_state.active_component_name = "Framework Component Output"
 
-# Helper function to query Groq using Llama 3.3 70B
+# Helper function to query Groq
 def call_groq(prompt_text):
     if not client:
         return "⚠️ Error: Groq API client is not configured. Please add your key."
     try:
-        # llama-3.3-70b-versatile is excellent for curriculum and complex structuring
         chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt_text,
-                }
-            ],
+            messages=[{"role": "user", "content": prompt_text}],
             model="llama-3.3-70b-versatile",
         )
         return chat_completion.choices[0].message.content
@@ -47,7 +44,7 @@ def call_groq(prompt_text):
 # 3. Sidebar UI (Lesson Parameters)
 with st.sidebar:
     st.markdown("### 🇦🇪 EduSpark AI Studio")
-    st.caption("ADPA UAE-Aligned Smart Lesson Builder (Powered by Groq)")
+    st.caption("ADPA UAE-Aligned Smart Lesson Builder")
     st.divider()
     
     st.markdown("#### **Lesson Parameters**")
@@ -61,31 +58,32 @@ with st.sidebar:
         differentiation = st.multiselect("Differentiation Focus", ["SEN Support", "G&T (Gifted & Talented)", "ELL / Language Support"], default=["SEN Support"])
 
     st.write("")
-    generate_btn = st.button("⚡ Generate ADPA Lesson Plan", type="primary", use_container_width=True)
+    generate_btn = st.button("⚡ Generate Full ADPA Lesson Plan", type="primary", use_container_width=True)
 
-# 4. Main Workspace UI Layout
-col_workspace, col_copilot = st.columns([2, 1])
+# 4. Layout: 3 Columns
+# Left: Full Workspace | Center: Specific Component Tools | Right: Copilot
+col_workspace, col_components, col_copilot = st.columns([1.5, 1.2, 1.1])
 
-# Left Column: Workspace & Output Preview
+# --- COLUMN 1: FULL WORKSPACE OUTPUT ---
 with col_workspace:
-    st.subheader("📝 Workspace Output Preview")
+    st.subheader("📝 Main Workspace Plan")
     
     if generate_btn:
         if not topic or not objectives:
             st.error("⚠️ Please fill in both the Topic and Learning Objectives to start.")
         else:
-            with st.spinner("Analyzing parameters & mapping to ADPA framework via Groq..."):
+            with st.spinner("Generating full framework via Groq..."):
                 base_prompt = f"""
                 You are an expert curriculum designer specializing in the UAE ADPA (Abu Dhabi Performance Assessment) Framework.
-                Generate a highly comprehensive, structured lesson plan based on these parameters:
+                Generate a comprehensive, structured lesson plan based on these parameters:
                 - Grade: {grade}
                 - Subject: {subject}
                 - Topic: {topic}
                 - Learning Objectives: {objectives}
                 - Duration: {time_duration} minutes
-                - Special Alignment Focus: {', '.join(differentiation)}
+                - Focus: {', '.join(differentiation)}
                 
-                Please organize the output perfectly using clear markdown sections (Objectives, Direct Instruction, Guided Practice, Differentiation, Formative Assessment).
+                Organize clearly into standard sections.
                 """
                 st.session_state.lesson_plan = call_groq(base_prompt)
     
@@ -93,54 +91,153 @@ with col_workspace:
         st.markdown(st.session_state.lesson_plan)
         st.divider()
         st.download_button(
-            label="📥 Download Lesson Plan (.txt)",
+            label="📥 Download Full Plan (.txt)",
             data=st.session_state.lesson_plan,
             file_name=f"ADPA_{topic.replace(' ', '_')}_Lesson_Plan.txt",
             mime="text/plain"
         )
     else:
-        st.info("👋 Welcome to EduSpark AI Studio! Fill out the fields in the left sidebar and click 'Generate' to create your lesson framework.")
+        st.info("👋 Fill out the sidebar and click 'Generate Full ADPA Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
 
-# Right Column: Copilot & Real-Time Refinements
+# --- COLUMN 2: SPECIFIC ADPA FRAMEWORK COMPONENTS ---
+with col_components:
+    st.subheader("🛠️ Framework Blocks")
+    st.caption("Click a button to generate a specific sub-framework element")
+    
+    # Grid Layout for your 13 options
+    comp_col1, comp_col2 = st.columns(2)
+    
+    # We will track which button is clicked and what prompt context it needs
+    selected_component = None
+    component_instruction = ""
+    
+    with comp_col1:
+        if st.button("📋 Matching Standards", use_container_width=True):
+            selected_component = "📋 Matching Standards"
+            component_instruction = "Generate highly relevant curriculum benchmarks and educational standards alignment for this grade and topic."
+            
+        if st.button("💡 Essential Question", use_container_width=True):
+            selected_component = "💡 Essential Question / Big Idea"
+            component_instruction = "Develop deep, inquiry-driven core statements and open-ended big questions that challenge student critical thinking."
+
+        if st.button("🌍 Real-Life Connections", use_container_width=True):
+            selected_component = "🌍 Real-Life Connections"
+            component_instruction = "Provide actionable ways to apply these academic concepts directly to real-world industries, technologies, or societal contexts."
+
+        if st.button("🔗 Interdisciplinary", use_container_width=True):
+            selected_component = "🔗 Interdisciplinary Connections"
+            component_instruction = "Show direct links mapping this topic cleanly into another learning subject (e.g., connecting Science with Art or Math with History)."
+
+        if st.button("🇦🇪 UAE National Identity", use_container_width=True):
+            selected_component = "🇦🇪 UAE National Identity"
+            component_instruction = "Incorporate UAE culture, local history, heritage, environmental achievements, or national strategy initiatives connected to this topic."
+
+        if st.button("🌟 Learner Profiles", use_container_width=True):
+            selected_component = "🌟 Learner Profile Attributes"
+            component_instruction = "Outline student-centric attributes (like IB Learner profile descriptions or 21st-century skills) targeted across this task."
+
+        if st.button("📝 Pre-Assessment (5 MCQ)", use_container_width=True):
+            selected_component = "📝 Pre-Assessment (5 MCQs)"
+            component_instruction = "Draft a 5-question multiple choice diagnostic test complete with an answer key to gauge prior student understanding."
+
+    with comp_col2:
+        if st.button("🔥 Independent Task", use_container_width=True):
+            selected_component = "🔥 Independent Learning Task"
+            component_instruction = "Design a differentiated individual learning assignment split into 3 student tiers: Mild (Scaffolded), Medium (Standard/Targeted), and Spicy (Extension/Challenge)."
+
+        if st.button("👥 Group Practice", use_container_width=True):
+            selected_component = "👥 Group Practice (Max 20 mins)"
+            component_instruction = "Construct a high-collaboration single-session interactive group challenge engineered to be accomplished inside a 20-minute window."
+
+        if st.button("🚀 PBL Ideas", use_container_width=True):
+            selected_component = "🚀 PBL Ideas"
+            component_instruction = "Propose creative, long-term Project-Based Learning experiences and student project prompts tied to this subject framework."
+
+        if st.button("♿ Students of Det. (SOD)", use_container_width=True):
+            selected_component = "♿ Students of Determination (SOD)"
+            component_instruction = "Provide strict inclusive support mechanisms, assistive accommodations, and concrete scaffolding instructions for SOD requirements."
+
+        if st.button("🎫 Exit Ticket", use_container_width=True):
+            selected_component = "🎫 Exit Ticket"
+            component_instruction = "Formulate a quick, highly reflective, 3-minute check-for-understanding prompt or exit card assignment."
+
+        if st.button("🎯 Post-Assessment (3 MCQ)", use_container_width=True):
+            selected_component = "🎯 Post-Assessment (3 MCQs)"
+            component_instruction = "Compose a 3-question multiple choice summative evaluation tool along with an answer key for direct post-lesson feedback."
+
+    # If any component button was selected, make the API call right away
+    if selected_component and component_instruction:
+        if not topic or not objectives:
+            st.error("⚠️ Make sure you have entered a Topic and Objectives in the sidebar first!")
+        else:
+            with st.spinner(f"Generating {selected_component}..."):
+                prompt = f"""
+                You are a premium curriculum architect aligning content with UAE standards.
+                Task: Generate the '{selected_component}' element.
+                Context parameters:
+                - Grade/Year: {grade}
+                - Subject: {subject}
+                - Lesson Topic: {topic}
+                - Stated Learning Objectives: {objectives}
+                
+                Instruction: {component_instruction}
+                Return ONLY clean text/markdown ready for copy-pasting.
+                """
+                st.session_state.component_output = call_groq(prompt)
+                st.session_state.active_component_name = selected_component
+
+    # --- THE INTERACTIVE TEXT AREA WITH COPY OPTION ---
+    st.divider()
+    st.markdown(f"##### 🔲 {st.session_state.active_component_name}")
+    
+    # Render the interactive text area filled with the generated component data
+    # (Users can edit it manually if they want, or select all to copy)
+    text_content = st.text_area(
+        label="Copy or edit the snippet text below:", 
+        value=st.session_state.component_output, 
+        height=320,
+        help="Select the text area text, or copy directly using the right-side layout tool."
+    )
+    
+    # Built-in Streamlit Copy Link alternative: download or standard system block copy support
+    if st.session_state.component_output:
+        st.caption("💡 *Tip: Streamlit's built-in code/text boxes let you mouse over the top-right corner to copy with 1-click, or you can manually use Ctrl+A & Ctrl+C inside the box.*")
+
+# --- COLUMN 3: AI COPILOT REFINEMENT PANEL ---
 with col_copilot:
     st.subheader("🤖 AI Copilot")
-    st.caption("Refine or adjust your active workspace setup instantly")
+    st.caption("Apply sweeping fixes to the main active layout")
     
     st.write("✨ **Quick Refinements:**")
-    chip_col1, chip_col2 = st.columns(2)
-    with chip_col1:
-        add_quiz = st.button("📝 Add 5-Question Quiz", use_container_width=True)
-        more_sen = st.button("🤝 Expand SEN Accommodations", use_container_width=True)
-    with chip_col2:
-        make_interactive = st.button("🎮 Add Interactive Activity", use_container_width=True)
-        time_breakdown = st.button("⏱️ Create Timing Breakdown", use_container_width=True)
+    add_quiz = st.button("📝 Add Extra Quiz Items", use_container_width=True)
+    more_sen = st.button("🤝 Deepen Support Strategies", use_container_width=True)
+    time_breakdown = st.button("⏱️ Create Detailed Pacing", use_container_width=True)
     
     st.divider()
     
     chip_instruction = ""
-    if add_quiz: chip_instruction = "Add a 5-question multiple choice quiz with an answer key at the end of the current lesson plan."
-    if more_sen: chip_instruction = "Expand the differentiation section to include highly specific, actionable strategies for SEN (Special Educational Needs) students."
-    if make_interactive: chip_instruction = "Include a hands-on, interactive student activity or gamified element aligned with this lesson topic."
-    if time_breakdown: chip_instruction = "Provide a minute-by-minute timeline structure detailing how to pace this entire lesson framework."
+    if add_quiz: chip_instruction = "Expand the assessment metrics by attaching additional custom quiz tracking options."
+    if more_sen: chip_instruction = "Deepen inclusion scaffolding adjustments across all target lesson blocks."
+    if time_breakdown: chip_instruction = "Provide an exact, comprehensive minute-by-minute pace structure tracking how to guide this entire agenda."
 
-    user_instruction = st.text_input("💬 Ask Copilot to rewrite or add something...", placeholder="e.g., Translate the vocabulary to Arabic...")
-    submit_instruction = st.button("Apply Instruction", use_container_width=True)
+    user_instruction = st.text_input("💬 Custom adjustments...", placeholder="e.g., Translate vocabulary to Arabic...")
+    submit_instruction = st.button("Apply to Plan", use_container_width=True)
     
     final_instruction = user_instruction if submit_instruction else chip_instruction
     
     if final_instruction:
         if not st.session_state.lesson_plan:
-            st.error("Please generate a base lesson plan first before applying adjustments.")
+            st.error("Please generate a full base plan in the workspace column before requesting edits.")
         else:
-            with st.spinner("Copilot adapting your script via Groq..."):
+            with st.spinner("Copilot adapting layout..."):
                 refinement_prompt = f"""
-                You are a co-editor helping refine a teacher's lesson plan.
-                Here is the CURRENT lesson plan:
+                You are editing a master lesson plan draft.
+                CURRENT PLAN:
                 ---
                 {st.session_state.lesson_plan}
                 ---
-                The user wants you to modify/update it with this instruction: "{final_instruction}"
-                Return the completely updated, full lesson plan integrating this new adjustment cleanly. Maintain proper markdown structure.
+                USER AMENDMENT DIRECTION: "{final_instruction}"
+                Return the fully reconstructed, integrated markdown text schema cleanly.
                 """
                 st.session_state.lesson_plan = call_groq(refinement_prompt)
                 st.rerun()
