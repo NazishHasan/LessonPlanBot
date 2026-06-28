@@ -53,6 +53,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Hide Streamlit Header, Main Menu, and GitHub Deploy/Source Links
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    .viewerBadge_container__1QSob {display: none !important;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
 # 2. Secure API Key Management (Groq)
 if "GROQ_API_KEY" in st.secrets:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
