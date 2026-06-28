@@ -54,7 +54,7 @@ with st.sidebar:
     objectives = st.text_area("Learning Objectives (LOs)", placeholder="What should students know or be able to do?")
     
     with st.expander("Advanced Settings"):
-        time_duration = st.slider("Lesson Duration (Minutes)", 30, 120, 60, step=5)
+        time_duration = st.slider("Lesson Duration (Minutes)", 30, 120, 55, step=5)
         differentiation = st.multiselect("Differentiation Focus", ["SEN Support", "G&T (Gifted & Talented)", "ELL / Language Support"], default=["SEN Support"])
 
     st.write("")
