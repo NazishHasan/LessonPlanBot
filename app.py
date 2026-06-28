@@ -107,7 +107,6 @@ with col_components:
     # Grid Layout for your 13 options
     comp_col1, comp_col2 = st.columns(2)
     
-    # We will track which button is clicked and what prompt context it needs
     selected_component = None
     component_instruction = ""
     
@@ -171,6 +170,7 @@ with col_components:
             st.error("⚠️ Make sure you have entered a Topic and Objectives in the sidebar first!")
         else:
             with st.spinner(f"Generating {selected_component}..."):
+                # Clean up prompt formatting to ensure plain text layout
                 prompt = f"""
                 You are a premium curriculum architect aligning content with UAE standards.
                 Task: Generate the '{selected_component}' element.
@@ -181,28 +181,25 @@ with col_components:
                 - Stated Learning Objectives: {objectives}
                 
                 Instruction: {component_instruction}
-                Return ONLY clean text/markdown ready for copy-pasting.
+                Return a clean, highly structured plain text response. Do not use complex html symbols. Use standard new lines.
                 """
                 st.session_state.component_output = call_groq(prompt)
                 st.session_state.active_component_name = selected_component
 
-    # --- THE INTERACTIVE TEXT AREA WITH COPY OPTION ---
+    # --- THE CLEAN COPY WORKSPACE ---
     st.divider()
     st.markdown(f"##### 🔲 {st.session_state.active_component_name}")
     
-    # Render the interactive text area filled with the generated component data
-    # (Users can edit it manually if they want, or select all to copy)
-    text_content = st.text_area(
-        label="Copy or edit the snippet text below:", 
-        value=st.session_state.component_output, 
-        height=320,
-        help="Select the text area text, or copy directly using the right-side layout tool."
-    )
-    
-    # Built-in Streamlit Copy Link alternative: download or standard system block copy support
     if st.session_state.component_output:
-        st.caption("💡 *Tip: Streamlit's built-in code/text boxes let you mouse over the top-right corner to copy with 1-click, or you can manually use Ctrl+A & Ctrl+C inside the box.*")
+        # st.code provides an instant 1-click copy button on hover and keeps layout clean!
+        st.code(st.session_state.component_output, language="markdown")
+    else:
+        st.caption("Click any framework block above to view text snippets here.")
 
+
+#-----------------------
+    
+  
 # --- COLUMN 3: AI COPILOT REFINEMENT PANEL ---
 with col_copilot:
     st.subheader("🤖 AI Copilot")
