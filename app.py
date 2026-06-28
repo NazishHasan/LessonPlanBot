@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # 2. Secure API Key Management (Groq)
-if "Teacher_API" in st.secrets:
+if "GROQ_API_KEY" in st.secrets:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 else:
     st.sidebar.warning("Groq API Key not found in Secrets. Please provide it below:")
