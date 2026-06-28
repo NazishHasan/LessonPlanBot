@@ -104,63 +104,64 @@ with col_components:
     st.subheader("🛠️ Framework Blocks")
     st.caption("Click a button to generate a specific sub-framework element")
     
-    # Grid Layout for your 13 options
-    comp_col1, comp_col2 = st.columns(2)
+    # Pack the buttons tightly into a 3-column compact grid layout
+    comp_col1, comp_col2, comp_col3 = st.columns(3)
     
     selected_component = None
     component_instruction = ""
     
     with comp_col1:
-        if st.button("📋 Matching Standards", use_container_width=True):
+        if st.button("📋 Standards", use_container_width=True, help="Matching Standards"):
             selected_component = "📋 Matching Standards"
             component_instruction = "Generate highly relevant curriculum benchmarks and educational standards alignment for this grade and topic."
             
-        if st.button("💡 Essential Question", use_container_width=True):
+        if st.button("💡 Big Idea", use_container_width=True, help="Essential Question / Big Idea"):
             selected_component = "💡 Essential Question / Big Idea"
             component_instruction = "Develop deep, inquiry-driven core statements and open-ended big questions that challenge student critical thinking."
 
-        if st.button("🌍 Real-Life Connections", use_container_width=True):
+        if st.button("🌍 Real-Life", use_container_width=True, help="Real-Life Connections"):
             selected_component = "🌍 Real-Life Connections"
             component_instruction = "Provide actionable ways to apply these academic concepts directly to real-world industries, technologies, or societal contexts."
 
-        if st.button("🔗 Interdisciplinary", use_container_width=True):
+        if st.button("🔗 Interdisc.", use_container_width=True, help="Interdisciplinary Connections"):
             selected_component = "🔗 Interdisciplinary Connections"
-            component_instruction = "Show direct links mapping this topic cleanly into another learning subject (e.g., connecting Science with Art or Math with History)."
+            component_instruction = "Show direct links mapping this topic cleanly into another learning subject."
 
-        if st.button("🇦🇪 UAE National Identity", use_container_width=True):
+        if st.button("🇦🇪 UAE National", use_container_width=True, help="UAE National Identity"):
             selected_component = "🇦🇪 UAE National Identity"
             component_instruction = "Incorporate UAE culture, local history, heritage, environmental achievements, or national strategy initiatives connected to this topic."
 
-        if st.button("🌟 Learner Profiles", use_container_width=True):
+    with comp_col2:
+        if st.button("🌟 Profiles", use_container_width=True, help="Learner Profile Attributes"):
             selected_component = "🌟 Learner Profile Attributes"
             component_instruction = "Outline student-centric attributes (like IB Learner profile descriptions or 21st-century skills) targeted across this task."
 
-        if st.button("📝 Pre-Assessment (5 MCQ)", use_container_width=True):
+        if st.button("📝 Pre-Assess", use_container_width=True, help="Pre-Assessment (5 MCQ)"):
             selected_component = "📝 Pre-Assessment (5 MCQs)"
             component_instruction = "Draft a 5-question multiple choice diagnostic test complete with an answer key to gauge prior student understanding."
 
-    with comp_col2:
-        if st.button("🔥 Independent Task", use_container_width=True):
+        if st.button("🔥 Ind. Task", use_container_width=True, help="Independent Learning Task"):
             selected_component = "🔥 Independent Learning Task"
-            component_instruction = "Design a differentiated individual learning assignment split into 3 student tiers: Mild (Scaffolded), Medium (Standard/Targeted), and Spicy (Extension/Challenge)."
+            component_instruction = "Design a differentiated individual learning assignment split into 3 student tiers: Mild, Medium, and Spicy."
 
-        if st.button("👥 Group Practice", use_container_width=True):
+        if st.button("👥 Group Prac.", use_container_width=True, help="Group Practice"):
             selected_component = "👥 Group Practice (Max 20 mins)"
             component_instruction = "Construct a high-collaboration single-session interactive group challenge engineered to be accomplished inside a 20-minute window."
 
-        if st.button("🚀 PBL Ideas", use_container_width=True):
+    with comp_col3:
+        if st.button("🚀 PBL Ideas", use_container_width=True, help="Project-Based Learning"):
             selected_component = "🚀 PBL Ideas"
             component_instruction = "Propose creative, long-term Project-Based Learning experiences and student project prompts tied to this subject framework."
 
-        if st.button("♿ Students of Det. (SOD)", use_container_width=True):
+        if st.button("♿ SOD Support", use_container_width=True, help="Students of Determination"):
             selected_component = "♿ Students of Determination (SOD)"
             component_instruction = "Provide strict inclusive support mechanisms, assistive accommodations, and concrete scaffolding instructions for SOD requirements."
 
-        if st.button("🎫 Exit Ticket", use_container_width=True):
+        if st.button("🎫 Exit Ticket", use_container_width=True, help="Exit Ticket"):
             selected_component = "🎫 Exit Ticket"
             component_instruction = "Formulate a quick, highly reflective, 3-minute check-for-understanding prompt or exit card assignment."
 
-        if st.button("🎯 Post-Assessment (3 MCQ)", use_container_width=True):
+        if st.button("🎯 Post-Assess", use_container_width=True, help="Post-Assessment (3 MCQ)"):
             selected_component = "🎯 Post-Assessment (3 MCQs)"
             component_instruction = "Compose a 3-question multiple choice summative evaluation tool along with an answer key for direct post-lesson feedback."
 
