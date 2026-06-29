@@ -50,7 +50,7 @@ st.set_page_config(
     page_title="Teacher Bot",
     page_icon="🇦🇪",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="auto"
 )
 
 # Hide Streamlit Header, Main Menu, and GitHub Deploy/Source Links
