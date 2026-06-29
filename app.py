@@ -50,7 +50,7 @@ st.set_page_config(
     page_title="Teacher Bot",
     page_icon="🇦🇪",
     layout="wide",
-    initial_sidebar_state="auto"
+    initial_sidebar_state="expanded"
 )
 
 # Hide Streamlit Header, Main Menu, and GitHub Deploy/Source Links
@@ -120,6 +120,33 @@ with st.sidebar:
     
     # NEW SLIDE GENERATOR BUTTON RIGHT IN THE SIDEBAR!
     generate_slides_btn = st.button("🖼️ Generate Student PPT Slides", type="secondary", use_container_width=True)
+
+# Insert this right before: col_workspace, col_tools = st.columns([1.1, 1.3])
+
+# Mobile Sidebar Rescue Banner
+st.markdown(
+    """
+    <style>
+    @media (max-width: 768px) {
+        .mobile-hint {
+            background-color: #f0f2f6;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+    }
+    @media (min-width: 769px) {
+        .mobile-hint { display: none; }
+    }
+    </style>
+    <div class="mobile-hint">
+        📱 <b>Using a phone?</b> Click the small arrow <b>&gt;</b> in the top-left corner if you need to change Lesson Parameters!
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
 
 # 4. Layout: Merged into 2 clean columns
 col_workspace, col_tools = st.columns([1.1, 1.3])
