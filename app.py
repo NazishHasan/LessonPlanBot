@@ -359,4 +359,4 @@ with col_tools:
                     st.session_state.lesson_plan = refinement_output
                 else:
                     st.session_state.student_slides_text = refinement_output
-                st.return()
+               st.rerun()
