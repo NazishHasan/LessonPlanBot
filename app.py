@@ -3,6 +3,47 @@ from groq import Groq
 import io
 from docx import Document
 from pptx import Presentation
+from pptx.util import Inches, Pt
+
+# Helper Function: Create Word Document
+def create_docx(content):
+    doc = Document()
+    doc.add_heading('Lesson Plan', 0)
+    for paragraph in content.split('\n\n'):
+        if paragraph.strip():
+            doc.add_paragraph(paragraph.strip())
+    bio = io.BytesIO()
+    doc.save(bio)
+    return bio.getvalue()
+
+# Smart Helper Function: Parse AI Text into a 10-12 Slide Presentation
+def create_smart_pptx(slide_text):
+    prs = Presentation()
+    
+    # Split the AI output by the word "Slide" to separate individual slides
+    raw_slides = slide_text.split('Slide ')
+    
+    for raw_slide in raw_slides:
+        if not raw_slide.strip():
+            continue
+            
+        # Add a standard Title + Bullet Content slide layout
+        slide = prs.slides.add_slide(prs.slide_layouts[1])
+        lines = raw_slide.strip().split('\n')
+        
+        # Line 0 usually contains the Slide number and Slide Title (e.g., "1: Welcome to the Lesson")
+        slide_title = lines[0].split(':', 1)[-1].strip() if ':' in lines[0] else lines[0]
+        slide.shapes.title.text = slide_title
+        
+        # Clean up remaining lines to act as slide body bullet points
+        body_lines = [line.strip().replace('- ', '').replace('* ', '') for line in lines[1:] if line.strip()]
+        body_text = "\n".join(body_lines)
+        
+        slide.placeholders[1].text = body_text
+        
+    bio = io.BytesIO()
+    prs.save(bio)
+    return bio.getvalue()
 
 # 1. Page Configuration
 st.set_page_config(
@@ -26,6 +67,8 @@ else:
 # Initialize Session State variables
 if "lesson_plan" not in st.session_state:
     st.session_state.lesson_plan = ""
+if "student_slides_text" not in st.session_state:
+    st.session_state.student_slides_text = ""
 if "component_output" not in st.session_state:
     st.session_state.component_output = ""
 if "active_component_name" not in st.session_state:
@@ -43,31 +86,6 @@ def call_groq(prompt_text):
         return chat_completion.choices[0].message.content
     except Exception as e:
         return f"Error communicating with Groq API: {str(e)}"
-
-# Helper: Create Word Doc
-def create_docx(content):
-    doc = Document()
-    doc.add_heading('Lesson Plan', 0)
-    doc.add_paragraph(content)
-    bio = io.BytesIO()
-    doc.save(bio)
-    return bio.getvalue()
-
-# Helper: Create PPT
-def create_pptx(content):
-    prs = Presentation()
-    # Basic logic: splitting content by headers to create slides
-    sections = content.split('\n## ')
-    for section in sections:
-        slide = prs.slides.add_slide(prs.slide_layouts[1])
-        title_text = section.split('\n')[0].replace('#', '').strip()
-        slide.shapes.title.text = title_text or "Lesson Overview"
-        slide.placeholders[1].text = section.split('\n', 1)[1] if '\n' in section else ""
-    
-    bio = io.BytesIO()
-    prs.save(bio)
-    return bio.getvalue()
-    
 
 # 3. Sidebar UI (Lesson Parameters)
 with st.sidebar:
@@ -87,14 +105,14 @@ with st.sidebar:
 
     st.write("")
     generate_btn = st.button("⚡ Generate Full Lesson Plan", type="primary", use_container_width=True)
+    generate_slides_btn = st.button("🖼️ Generate Student PPT Slides", type="secondary", use_container_width=True)
 
 # 4. Layout: Merged into 2 clean columns
 col_workspace, col_tools = st.columns([1.1, 1.3])
 
 # --- COLUMN 1: FULL WORKSPACE OUTPUT ---
 with col_workspace:
-    st.subheader("📝 Main Workspace Plan")
-    
+    # Trigger 1: Handle Master Lesson Plan Generation
     if generate_btn:
         if not topic or not objectives:
             st.error("⚠️ Please fill in both the Topic and Learning Objectives to start.")
@@ -113,10 +131,36 @@ with col_workspace:
                 Organize clearly into standard sections.
                 """
                 st.session_state.lesson_plan = call_groq(base_prompt)
-    
+                st.session_state.student_slides_text = "" # Clear slide output layout view
 
+    # Trigger 2: Handle Student Classroom Slides Generation
+    if generate_slides_btn:
+        if not topic or not objectives:
+            st.error("⚠️ Please fill in both the Topic and Learning Objectives to start.")
+        else:
+            with st.spinner("Drafting 10-12 Interactive Student Slides..."):
+                slides_prompt = f"""
+                Create a slide-by-slide classroom presentation script tailored for students based on:
+                - Grade: {grade}, Subject: {subject}, Topic: {topic}, Objectives: {objectives}
+                
+                You must generate between 10 to 12 distinct slides. Format your entire output STRICTLY like this blueprint example, using the word 'Slide X: Title' to split slides cleanly:
+                
+                Slide 1: Lesson Title & Hook
+                - Welcome to our lesson on {topic}!
+                - Here is our mystery question for today...
+                
+                Slide 2: Our Learning Goals
+                - By the end of today, we will understand...
+                - We will be able to...
+                
+                Follow this structure for all 10-12 slides covering Vocabulary, Introduction, Guided Task, Independent Task, Group Challenge, Quiz, and Reflection. Do not include extra conversational text outside this structure.
+                """
+                st.session_state.student_slides_text = call_groq(slides_prompt)
+                st.session_state.lesson_plan = "" # Clear normal lesson plan layout view
 
+    # DISPLAY SEGMENTS DYNAMICALLY BASED ON WHAT WORKSPACE ELEMENT WAS REQUESTED
     if st.session_state.lesson_plan:
+        st.subheader("📝 Main Workspace Plan")
         st.markdown(st.session_state.lesson_plan)
         st.divider()
         
@@ -125,11 +169,25 @@ with col_workspace:
         with btn_col1:
             st.download_button("📥 Word (.docx)", data=create_docx(st.session_state.lesson_plan), file_name=f"ADPA_{topic.replace(' ', '_')}.docx", use_container_width=True)
         with btn_col2:
-            st.download_button("📥 PPT (.pptx)", data=create_pptx(st.session_state.lesson_plan), file_name=f"Lesson_{topic.replace(' ', '_')}.pptx", use_container_width=True)
+            st.skip = True # Standard layout placement placeholder
         with btn_col3:
             st.download_button("📥 Text (.txt)", data=st.session_state.lesson_plan, file_name=f"ADPA_{topic.replace(' ', '_')}.txt", use_container_width=True)
+
+    elif st.session_state.student_slides_text:
+        st.subheader("🖼️ Main Workspace: Classroom Presentation Preview")
+        st.markdown(st.session_state.student_slides_text)
+        st.divider()
+        
+        st.download_button(
+            label="📥 Download Classroom PPT (.pptx)", 
+            data=create_smart_pptx(st.session_state.student_slides_text), 
+            file_name=f"Classroom_Slides_{topic.replace(' ', '_')}.pptx", 
+            use_container_width=True,
+            type="primary"
+        )
     else:
-        st.info("👋 Fill out the sidebar and click 'Generate Full ADPA Lesson Plan' to start your macro setup, or use the component panel to build it piece by piece!")
+        st.subheader("📝 Main Workspace Plan")
+        st.info("👋 Fill out the sidebar and click 'Generate Full ADPA Lesson Plan' to start your macro setup, or click 'Generate Student PPT Slides' to create student classroom visual presentations!")
 
 # --- COLUMN 2: MERGED FRAMEWORK BLOCKS & COPILOT TOOLS ---
 with col_tools:
@@ -251,18 +309,23 @@ with col_tools:
     final_instruction = user_instruction if submit_instruction else chip_instruction
     
     if final_instruction:
-        if not st.session_state.lesson_plan:
-            st.error("Please generate a full base plan in the workspace column before requesting edits.")
+        if not st.session_state.lesson_plan and not st.session_state.student_slides_text:
+            st.error("Please generate either a Lesson Plan or PPT Slides in the workspace column before requesting edits.")
         else:
             with st.spinner("Copilot adapting layout..."):
+                active_text = st.session_state.lesson_plan if st.session_state.lesson_plan else st.session_state.student_slides_text
                 refinement_prompt = f"""
                 You are editing a master lesson plan draft.
                 CURRENT PLAN:
                 ---
-                {st.session_state.lesson_plan}
+                {active_text}
                 ---
                 USER AMENDMENT DIRECTION: "{final_instruction}"
                 Return the fully reconstructed, integrated markdown text schema cleanly.
                 """
-                st.session_state.lesson_plan = call_groq(refinement_prompt)
+                refinement_output = call_groq(refinement_prompt)
+                if st.session_state.lesson_plan:
+                    st.session_state.lesson_plan = refinement_output
+                else:
+                    st.session_state.student_slides_text = refinement_output
                 st.rerun()
