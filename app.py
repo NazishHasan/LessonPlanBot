@@ -53,31 +53,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- TARGETED CSS: Hides Top Actions, Safely Retains Sidebar Control Buttons ---
+# --- COMPLETELY REMOVE TOP ACTIONS & SECURE SIDEBAR ARROWS ---
 st.markdown(
     """
     <style>
-    /* Hide the top right action buttons (Fork, GitHub link, Deploy button) */
-    [data-testid="stAppDeployButton"], 
-    [data-testid="stHeaderActionElements"] {
-        display: none !important;
-    }
-    
-    /* Hide the default hamburger main menu completely */
+    /* Completely hide the entire top right toolbar actions container */
+    [data-testid="stAppToolbar"], 
+    [data-testid="stHeaderActionElements"], 
+    [data-testid="stToolbarActionButton"],
+    [data-testid="stAppDeployButton"],
     #MainMenu {
+        display: none !important;
         visibility: hidden !important;
     }
     
-    /* Ensure the top header background container is transparent/non-intrusive */
+    /* Ensure the main header container doesn't block clicks */
     header {
         background-color: rgba(0,0,0,0) !important;
+        height: 0px !important;
     }
     
-    /* Protect the absolute rendering & clickability of the native sidebar controls */
+    /* FORCE keep the sidebar collapse and expand arrows fully visible & interactive */
     [data-testid="collapsedControl"], 
-    [data-testid="stSidebarCollapseButton"] {
-        visibility: visible !important;
+    [data-testid="stSidebarCollapseButton"],
+    button[data-testid="stSidebarCollapseButton"] {
         display: block !important;
+        visibility: visible !important;
         z-index: 999999 !important;
     }
     </style>
@@ -227,7 +228,6 @@ with col_tools:
     st.caption("Click a button to generate a specific sub-framework element below")
     
     comp_col1, comp_col2, comp_col3 = st.columns(3)
-    
     selected_component = None
     component_instruction = ""
     
