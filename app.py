@@ -53,6 +53,21 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Force Sidebar Toggle Button to remain visible and interactive on mobile
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebarCollapseButton"] {
+        z-index: 999999 !important;
+        background-color: #f0f2f6 !important;
+        border-radius: 50% !important;
+        left: 10px !important;
+        top: 10px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # Hide Streamlit Header, Main Menu, and GitHub Deploy/Source Links
 hide_streamlit_style = """
     <style>
