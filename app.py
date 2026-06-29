@@ -53,6 +53,38 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# --- TARGETED CSS: Hides Top Actions, Safely Retains Sidebar Control Buttons ---
+st.markdown(
+    """
+    <style>
+    /* Hide the top right action buttons (Fork, GitHub link, Deploy button) */
+    [data-testid="stAppDeployButton"], 
+    [data-testid="stHeaderActionElements"] {
+        display: none !important;
+    }
+    
+    /* Hide the default hamburger main menu completely */
+    #MainMenu {
+        visibility: hidden !important;
+    }
+    
+    /* Ensure the top header background container is transparent/non-intrusive */
+    header {
+        background-color: rgba(0,0,0,0) !important;
+    }
+    
+    /* Protect the absolute rendering & clickability of the native sidebar controls */
+    [data-testid="collapsedControl"], 
+    [data-testid="stSidebarCollapseButton"] {
+        visibility: visible !important;
+        display: block !important;
+        z-index: 999999 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # 2. Secure API Key Management (Groq)
 if "GROQ_API_KEY" in st.secrets:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
@@ -131,7 +163,7 @@ with col_workspace:
                 Organize clearly into standard sections.
                 """
                 st.session_state.lesson_plan = call_groq(base_prompt)
-                st.session_state.student_slides_text = "" # Clear slide output layout view
+                st.session_state.student_slides_text = "" 
 
     # Trigger 2: Handle Student Classroom Slides Generation
     if generate_slides_btn:
@@ -156,7 +188,7 @@ with col_workspace:
                 Follow this structure for all 10-12 slides covering Vocabulary, Introduction, Guided Task, Independent Task, Group Challenge, Quiz, and Reflection. Do not include extra conversational text outside this structure.
                 """
                 st.session_state.student_slides_text = call_groq(slides_prompt)
-                st.session_state.lesson_plan = "" # Clear normal lesson plan layout view
+                st.session_state.lesson_plan = ""
 
     # DISPLAY SEGMENTS DYNAMICALLY BASED ON WHAT WORKSPACE ELEMENT WAS REQUESTED
     if st.session_state.lesson_plan:
@@ -169,7 +201,7 @@ with col_workspace:
         with btn_col1:
             st.download_button("📥 Word (.docx)", data=create_docx(st.session_state.lesson_plan), file_name=f"ADPA_{topic.replace(' ', '_')}.docx", use_container_width=True)
         with btn_col2:
-            st.skip = True # Standard layout placement placeholder
+            st.skip = True 
         with btn_col3:
             st.download_button("📥 Text (.txt)", data=st.session_state.lesson_plan, file_name=f"ADPA_{topic.replace(' ', '_')}.txt", use_container_width=True)
 
@@ -194,7 +226,6 @@ with col_tools:
     st.subheader("🛠️ Framework Blocks")
     st.caption("Click a button to generate a specific sub-framework element below")
     
-    # 3-Column Button Grid for the 13 options to keep it highly organized
     comp_col1, comp_col2, comp_col3 = st.columns(3)
     
     selected_component = None
@@ -303,7 +334,7 @@ with col_tools:
     if more_sen: chip_instruction = "Deepen inclusion scaffolding adjustments across all target lesson blocks."
     if time_breakdown: chip_instruction = "Provide an exact, comprehensive minute-by-minute pace structure tracking how to guide this entire agenda."
 
-    user_instruction = st.text_input("💬 Custom adjustments to Main Plan...", placeholder="e.g., Translate vocabulary to Arabic...")
+    user_instruction = st.text_input("💬 Custom adjustments to Main Plan...", placeholder="e.g., Translate vocabulary to Arabic...", key="custom_adjust")
     submit_instruction = st.button("Apply to Main Plan", use_container_width=True)
     
     final_instruction = user_instruction if submit_instruction else chip_instruction
@@ -328,4 +359,4 @@ with col_tools:
                     st.session_state.lesson_plan = refinement_output
                 else:
                     st.session_state.student_slides_text = refinement_output
-                st.rerun()
+                st.return()
