@@ -47,27 +47,12 @@ def create_smart_pptx(slide_text):
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="Teacher Bot",
+    page_title="Teacher Bot - UAE Aligned Lesson Plan Generator",
     page_icon="🇦🇪",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded" # This forces the sidebar back open cleanly
 )
 
-# Force Sidebar Toggle Button to remain visible and interactive on mobile
-st.markdown(
-    """
-    <style>
-    [data-testid="stSidebarCollapseButton"] {
-        z-index: 999999 !important;
-        background-color: #f0f2f6 !important;
-        border-radius: 50% !important;
-        left: 10px !important;
-        top: 10px !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 # Hide Streamlit Header, Main Menu, and GitHub Deploy/Source Links
 hide_streamlit_style = """
     <style>
